@@ -1,13 +1,18 @@
 import { useState } from "react";
 import "./App.css";
 
-function App() {
-  const [subject, setSubject] = useState("");
-  const [grade, setGrade] = useState("");
-  const [courses, setCourses] = useState([]);
-  const [gpa, setGpa] = useState(null);
+type Course = {
+  subject: string;
+  grade: string;
+};
 
-  const gradeToPoint = (g) => {
+function App() {
+  const [subject, setSubject] = useState<string>("");
+  const [grade, setGrade] = useState<string>("");
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [gpa, setGpa] = useState<number | null>(null);
+
+  const gradeToPoint = (g: string): number | null => {
     switch (g) {
       case "A": return 4.0;
       case "B+": return 3.5;
@@ -17,32 +22,33 @@ function App() {
       case "D+": return 1.5;
       case "D": return 1.0;
       case "F": return 0.0;
-      default: return null; // เช่น W (ถอน)
+      default: return null; // เช่น W
     }
   };
 
   const addCourse = () => {
     if (!subject || !grade) return;
-    setCourses([...courses, { subject, grade }]);
+    const newCourse: Course = { subject, grade };
+    setCourses([...courses, newCourse]);
     setSubject("");
     setGrade("");
   };
 
-  const removeCourse = (index) => {
+  const removeCourse = (index: number) => {
     setCourses(courses.filter((_, i) => i !== index));
   };
 
   const calculateGPA = () => {
-    const validCourses = courses.filter(c => gradeToPoint(c.grade) !== null);
+    const validCourses = courses.filter((c) => gradeToPoint(c.grade) !== null);
     if (validCourses.length === 0) {
       setGpa(0);
       return;
     }
     const totalPoints = validCourses.reduce(
-      (sum, c) => sum + gradeToPoint(c.grade),
+      (sum, c) => sum + (gradeToPoint(c.grade) ?? 0),
       0
     );
-    setGpa((totalPoints / validCourses.length).toFixed(2));
+    setGpa(parseFloat((totalPoints / validCourses.length).toFixed(2)));
   };
 
   return (
